@@ -21,7 +21,7 @@ public class AppOferta {
         do {
             System.out.println("\n====================================================================");
             System.out.println("Digite\n 1 - Cadastrar Oferta\n" +
-                    " 2 - Atulaizar Oferta\n" +
+                    " 2 - Atualizar Oferta\n" +
                     " 3 - Excluir Oferta\n" +
                     " 4 - Listar produtos desejados\n" +
                     " 5 - Para sair do programa\n");
@@ -29,43 +29,41 @@ public class AppOferta {
             try {
                 opt = leitorNum.nextInt();
 
-                switch (opt) {
-                    case 1:
-                        System.out.println("Digite o nome");
-                        String nome = leitorStr.nextLine();
-                        System.out.println("a descrição do Produto");
-                        String descricao = leitorStr.nextLine();
-                        System.out.println("o valor do desconto em %");
-                        int descontoPorc = leitorNum.nextInt();
-                        System.out.println("o preço");
-                        double preco = leitorNum.nextDouble();
+                if(opt==1) {
+                    System.out.println("Digite o nome");
+                    String nome = leitorStr.nextLine();
+                    System.out.println("a descrição do Produto");
+                    String descricao = leitorStr.nextLine();
+                    System.out.println("o valor do desconto em %");
+                    int descontoPorc = leitorNum.nextInt();
+                    System.out.println("o preço");
+                    double preco = leitorNum.nextDouble();
 
-                        double desconto = (preco*descontoPorc/100);
-                        if (descontoPorc < 100) {
-                            try {
-                               String data = new ProdutoDAO().dataAtual();
-                               ProdutoDAO produtoDao= new ProdutoDAO();
-                               produtoDao.salvarOferta(new Produto(0,nome, descricao, descontoPorc, preco,data),desconto);
+                    double desconto = (preco * descontoPorc / 100);
+                    if (descontoPorc < 100) {
+                        try {
+                            String data = new ProdutoDAO().dataAtual();
+                            ProdutoDAO produtoDao = new ProdutoDAO();
+                            produtoDao.salvarOferta(new Produto(0, nome, descricao, descontoPorc, preco, data), desconto);
 
-                            } catch (SQLException e) {
-                                System.out.println("\nNão foi possível salvar a oferta");
-                            }
+                        } catch (SQLException e) {
+                            System.out.println("\nNão foi possível salvar a oferta");
                         }
+                    }
 
-                    case 2:
-                       try{
-                           ProdutoDAO produtoDAO = new ProdutoDAO();
-                           produtoDAO.buscarOfertasOpt();
-                           System.lineSeparator();
-                           System.out.println("============================================");
-                           System.out.println("\nDigite o id do produto que deseja alterar");
-                           int idAtu = leitorNum.nextInt();
-                           produtoDAO.atualizarOferta(idAtu);
-                       } catch (SQLException e) {
-                           System.out.println("Erro ao atualizar a oferta");
-                       }
-
-                    case 3:
+                } else if (opt==2) {
+                    try {
+                        ProdutoDAO produtoDAO = new ProdutoDAO();
+                        produtoDAO.buscarOfertasOpt();
+                        System.lineSeparator();
+                        System.out.println("============================================");
+                        System.out.println("\nDigite o id do produto que deseja alterar");
+                        int idAtu = leitorNum.nextInt();
+                        produtoDAO.atualizarOferta(idAtu);
+                    } catch (SQLException e) {
+                        System.out.println("Erro ao atualizar a oferta");
+                    }
+                } else if (opt==3) {
                         try{
                             ProdutoDAO produtoDAO = new ProdutoDAO();
                             produtoDAO.buscarOfertasOpt();
@@ -77,7 +75,7 @@ public class AppOferta {
                         } catch (SQLException e) {
                             System.out.println("Erro ao excluir a oferta");
                         }
-                    case 4:
+                } else if (opt==4) {
                         try{
                             ProdutoDAO produtoDAO = new ProdutoDAO();
                             System.lineSeparator();
@@ -91,7 +89,7 @@ public class AppOferta {
                 }
 
             } catch (InputMismatchException  | ArrayIndexOutOfBoundsException ex) {
-                System.out.println("Digite um numero válido");
+                System.out.println("Dado inválido, tente novamente");
                 leitorNum.nextLine();
 
             }catch (NullPointerException npe){

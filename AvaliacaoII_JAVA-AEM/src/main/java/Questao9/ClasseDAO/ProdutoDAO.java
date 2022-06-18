@@ -16,7 +16,8 @@ import java.util.Scanner;
 public class ProdutoDAO implements IProduto {
 
     private Connection connection;
-    private double[] valorDesconto;
+    private double precoComDesc;
+    private double valorDesconto;
 
     public ProdutoDAO() throws SQLException {
         this.connection = new ConnectionFactory().getConexao();
@@ -59,11 +60,12 @@ public class ProdutoDAO implements IProduto {
             String sql="";
             int desc;
             double preco;
-            PreparedStatement psm = this.connection.prepareStatement("SELECT id, desconto, preco FROM produto WHERE id = ?");
-            psm.setInt(1,id);
-            psm.execute();
-            List<Produto> produtos = buscarOfertaEspecifica(psm.getResultSet());
-            if (psm.execute()){
+            PreparedStatement psmId = this.connection.prepareStatement("SELECT id, desconto, preco, precoComDesc FROM produto WHERE id = ?");
+            psmId.setInt(1,id);
+            psmId.execute();
+            ResultSet result = psmId.getResultSet();
+            List<Produto> produtos = buscarOfertaEspecifica(result);
+            if (psmId.execute()){
                 try {
                     System.out.println("Deseja alterar  1-Desconto  2-Preço  3-Desconto e Preço?");
                     int resposta = ler.nextInt();
@@ -71,21 +73,25 @@ public class ProdutoDAO implements IProduto {
                         System.out.println("Digite o novo desconto");
                         desc = ler.nextInt();
                         double novoDesc = produtos.get(0).getPreco() * desc/100;
-                        sql = "UPDATE produto SET desconto = ?, valorDesconto = ?  WHERE id = ?";
+                        double novoPrecoComDesc = produtos.get(0).getPreco()-novoDesc;
+                        sql = "UPDATE produto SET desconto = ?, valorDesconto = ?, precoComDesc = ?  WHERE id = ?";
                         PreparedStatement psmUpdate = this.connection.prepareStatement(sql);
                         psmUpdate.setInt(1,desc);
                         psmUpdate.setDouble(2,novoDesc);
-                        psmUpdate.setInt(3,id);
+                        psmUpdate.setDouble(3,novoPrecoComDesc);
+                        psmUpdate.setInt(4,id);
                         psmUpdate.execute();
                     } else if (resposta == 2) {
                         System.out.println("Digite o novo preço");
                         preco = ler.nextDouble();
                         double novoDesc = preco * produtos.get(0).getDesconto()/100;
-                        sql = "UPDATE produto SET preco = ?, valorDesconto = ? WHERE id = ?";
+                        double novoPrecoComDesc = preco-novoDesc;
+                        sql = "UPDATE produto SET preco = ?, valorDesconto = ?, precoComDesc = ? WHERE id = ?";
                         PreparedStatement psmUpdate = this.connection.prepareStatement(sql);
                         psmUpdate.setDouble(1,preco);
                         psmUpdate.setDouble(2,novoDesc);
-                        psmUpdate.setInt(3,id);
+                        psmUpdate.setDouble(3,novoPrecoComDesc);
+                        psmUpdate.setInt(4,id);
                         psmUpdate.execute();
                     } else if (resposta == 3) {
                         System.out.println("Digite o novo desconto");
@@ -93,12 +99,14 @@ public class ProdutoDAO implements IProduto {
                         System.out.println("Digite o novo preço");
                         preco = ler.nextDouble();
                         double novoDesc = preco * desc/100;
-                        sql = "UPDATE produto SET desconto = ?, preco = ?, valorDesconto = ? WHERE id = ?";
+                        double novoPrecoComDesc = preco-novoDesc;
+                        sql = "UPDATE produto SET desconto = ?, preco = ?, valorDesconto = ?, precoComDesc = ? WHERE id = ?";
                         PreparedStatement psmUpdate = this.connection.prepareStatement(sql);
                         psmUpdate.setDouble(1,desc);
                         psmUpdate.setDouble(2,preco);
                         psmUpdate.setDouble(3,novoDesc);
-                        psmUpdate.setInt(4,id);
+                        psmUpdate.setDouble(4,novoPrecoComDesc);
+                        psmUpdate.setInt(5,id);
                         psmUpdate.execute();
                     } else {
                         System.out.println("Digite uma das opções acima");
@@ -107,7 +115,7 @@ public class ProdutoDAO implements IProduto {
                 }catch (Exception ex){
                     System.out.println("Digite uma das opções acima");
                 }
-            }
+            }psmId.close();
         } catch (SQLException e) {
             System.out.println("Erro ao buscar Produtos");
         } catch (InputMismatchException | ArrayIndexOutOfBoundsException ex) {
@@ -123,6 +131,7 @@ public class ProdutoDAO implements IProduto {
                 PreparedStatement psmDel= this.connection.prepareStatement("DELETE FROM produto WHERE id = ?");
                 psmDel.setInt(1,id);
                 psmDel.execute();
+                psmDel.close();
            }else{
                System.out.println("Produto não encontrado");
            }
@@ -149,18 +158,26 @@ public class ProdutoDAO implements IProduto {
                 }
             }
             if (!produtoEncontrados.isEmpty()){
-                for (int i = 0; i < 4; i++) {
+                for (int i = 0; i < produtoEncontrados.size(); i++) {
+                    System.out.println("=================================--------");
+                    System.out.println("========Itens encontrados=========================");
+                    System.out.println("-----------------------------------------");
                     System.out.println(produtoEncontrados.get(i).getId() +" - "+
                             produtoEncontrados.get(i).getNome()+" - "+
                             produtoEncontrados.get(i).getDescricao()+" - "+
                             produtoEncontrados.get(i).getDesconto()+" - "+
-//                            this.valorDesconto[i] +" - "+
+                            this.valorDesconto +" - "+
                             produtoEncontrados.get(i).getPreco()+" - "+
+                            this.precoComDesc+" - "+
                             produtoEncontrados.get(i).getDataInicio());
                 }
+            }else{
+                System.out.println("Produto não encontrado");
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }catch (IndexOutOfBoundsException iob){
+            System.out.println("Erro aq imprimir a lista");
         }
 
         return null;
@@ -182,6 +199,7 @@ public class ProdutoDAO implements IProduto {
                produtos.add(new Produto(id,nome,descricao, desconto,preco,""));
                 System.out.println(id+" - "+nome+" - "+descricao+" - "+desconto+" - "+preco);
             }
+            stmo.close();
             return produtos;
         } catch (SQLException e) {
             System.out.println("Erro ao buscar Produtos");
@@ -189,22 +207,23 @@ public class ProdutoDAO implements IProduto {
         return produtos;
     }
 
-
     public List<Produto> buscarOfertaEspecifica(ResultSet result) throws SQLException {
         List<Produto> produtos = new ArrayList<>();
         int i=0;
         try {
-            while (result.next()) {
-                int idEncontrado = result.getInt("ID");
-                String nome = result.getString("NOME");
-                String descricao = result.getString("DESCRICAO");
-                int desconto = result.getInt("DESCONTO");
-//                this.valorDesconto[i] = result.getDouble("VALORDESCONTO");
-                double preco = result.getDouble("PRECO");
-                String data = result.getString("DATAINICIO");
-
-                produtos.add(new Produto(idEncontrado, nome,descricao, desconto, preco, data));
-            }
+//             id, nome, descricao, desconto,valorDesconto,  preco, dataInicio, precoComDesc
+                while (result.next()) {
+                    int idEncontrado = result.getInt("ID");
+                    String nome = result.getString("NOME");
+                    String descricao = result.getString("DESCRICAO");
+                    int desconto = result.getInt("DESCONTO");
+                    this.valorDesconto = result.getDouble("VALORDESCONTO");
+                    double preco = result.getDouble("PRECO");
+                    this.precoComDesc = result.getDouble("PRECOCOMDESC");
+                    String data = result.getString("DATAINICIO");
+                    produtos.add(new Produto(idEncontrado, nome, descricao, desconto, preco, data));
+                }
+            result.close();
             return produtos;
         } catch (SQLException e) {
             System.out.println("Erro ao buscar Produtos");
@@ -214,10 +233,10 @@ public class ProdutoDAO implements IProduto {
 
     public boolean verificaSeExiste(int id) throws SQLException {
 
-        PreparedStatement psm = this.connection.prepareStatement("SELECT id FROM produto WHERE id = ?");
-        psm.setInt(1,id);
-        boolean existe = psm.execute();
-        psm.close();
+        PreparedStatement psmEx = this.connection.prepareStatement("SELECT id FROM produto WHERE id = ?");
+        psmEx.setInt(1,id);
+        boolean existe = psmEx.execute();
+        psmEx.close();
         if (existe) return true;
         return false;
     }

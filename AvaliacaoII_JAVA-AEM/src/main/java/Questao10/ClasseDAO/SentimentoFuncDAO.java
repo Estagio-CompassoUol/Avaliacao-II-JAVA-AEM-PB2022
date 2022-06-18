@@ -1,6 +1,5 @@
 package Questao10.ClasseDAO;
 
-
 import Questao10.Factory.ConnectionFactory;
 import Questao10.Interface.ISentimentoFuncDAO;
 import Questao10.Model.Sentimento;
