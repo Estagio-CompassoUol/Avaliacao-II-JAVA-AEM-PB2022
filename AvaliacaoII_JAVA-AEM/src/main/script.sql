@@ -6,8 +6,10 @@ CREATE TABLE `produto` (
   `nome` varchar(45) NOT NULL,
   `descricao` varchar(100) NOT NULL,
   `desconto` int NOT NULL,
-  `preco` float NOT NULL,
-  `dataInicio` date NOT NULL,
+  `valorDesconto` double NOT NULL,
+  `preco` double NOT NULL,
+  `dataInicio` varchar(10) NOT NULL,
+  `precoComDesc` double NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

@@ -5,6 +5,7 @@ import Questao10.ClasseDAO.SentimentoFuncDAO;
 import java.sql.SQLException;
 import java.util.Scanner;
 
+
 public class AppSentimento {
     public static void main(String[] args) {
         Scanner ler = new Scanner(System.in);

@@ -6,6 +6,7 @@ import Questao10.Model.Sentimento;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -43,12 +44,12 @@ public class SentimentoFuncDAO implements ISentimentoFuncDAO {
 
             } else if (chateadoUsu>divertidoUsu) {
                 System.out.println("Você esta chateado");
-                int chateadoTot=1+divertidoBus;
+                int chateadoTot=1+chateadoBusc;
                 psm.setInt(1,chateadoTot);
                 psm.setString(2,"chateado");
                 psm.execute();
             }else {
-                int neutroTot=1+divertidoBus;
+                int neutroTot=1+neutroBusc;
                 System.out.println("neutro");
                 psm.setInt(1,neutroTot);
                 psm.setString(2,"neutro");
@@ -66,34 +67,56 @@ public class SentimentoFuncDAO implements ISentimentoFuncDAO {
         String retorno="";
         int chateado = 0, divertido = 0, neutro = 0;
         for (int i = 0; i < msgFracionaria.length; i++) {
-            if (msgFracionaria[i].equalsIgnoreCase(":")) {
-                if (msgFracionaria.length - i >= 3) {
-                    retorno = verificaQuantidadeUsuario(i,msgFracionaria);
-                    String[] retornoFrac = retorno.split(" ");
-                    divertido += Integer.parseInt(retornoFrac[0]);
-                    chateado += Integer.parseInt(retornoFrac[1]);
-                    neutro += Integer.parseInt(retornoFrac[2]);
-                    i=i+3;
+                if (msgFracionaria[i].equals(":")) {
+                    if (msgFracionaria.length - i >= 3) {
+                        retorno = verificaQuantidadeUsuario(i,msgFracionaria);
+                        String[] retornoFrac = retorno.split(" ");
+                        divertido += Integer.parseInt(retornoFrac[0]);
+                        chateado += Integer.parseInt(retornoFrac[1]);
+                        neutro += Integer.parseInt(retornoFrac[2]);
+                        if (Integer.parseInt(retornoFrac[3]) ==3 ){
+                            i=i+2;
+                        } else if (Integer.parseInt(retornoFrac[3]) ==2) {
+                            i=i+1;
+                        }
+                    }
+                } else if (msgFracionaria[i].equals(")")) {
+                    if (msgFracionaria.length - i >= 3) {
+                        retorno = verificaQuantidadeUsuario(i,msgFracionaria);
+                        String[] retornoFrac = retorno.split(" ");
+                        divertido += Integer.parseInt(retornoFrac[0]);
+                        chateado += Integer.parseInt(retornoFrac[1]);
+                        neutro += Integer.parseInt(retornoFrac[2]);
+                        if (Integer.parseInt(retornoFrac[3]) ==3 ){
+                            i=i+2;
+                        } else if (Integer.parseInt(retornoFrac[3]) ==2) {
+                            i=i+1;
+                        }
+                    }
+                } else if (msgFracionaria[i].equals("(")) {
+                    if (msgFracionaria.length - i >= 3) {
+                        retorno = verificaQuantidadeUsuario(i,msgFracionaria);
+                        String[] retornoFrac = retorno.split(" ");
+                        divertido += Integer.parseInt(retornoFrac[0]);
+                        chateado += Integer.parseInt(retornoFrac[1]);
+                        neutro += Integer.parseInt(retornoFrac[2]);
+                        if (Integer.parseInt(retornoFrac[3]) ==3 ){
+                            i=i+2;
+                        } else if (Integer.parseInt(retornoFrac[3]) ==2) {
+                            i=i+1;
+                        }
+                    }
+                }else if (msgFracionaria[i].equals("-")) {
+                    if (msgFracionaria.length - i >= 2) {
+                        retorno = verificaQuantidadeUsuario(i, msgFracionaria);
+                        String[] retornoFrac = retorno.split(" ");
+                        divertido += Integer.parseInt(retornoFrac[0]);
+                        chateado += Integer.parseInt(retornoFrac[1]);
+                        neutro += Integer.parseInt(retornoFrac[2]);
+                        i = i + 1;
+                    }
                 }
-            } else if (msgFracionaria[i].equalsIgnoreCase(")")) {
-                if (msgFracionaria.length - i >= 3) {
-                    retorno = verificaQuantidadeUsuario(i,msgFracionaria);
-                    String[] retornoFrac = retorno.split(" ");
-                    divertido += Integer.parseInt(retornoFrac[0]);
-                    chateado += Integer.parseInt(retornoFrac[1]);
-                    neutro += Integer.parseInt(retornoFrac[2]);
-                    i=i+3;
-                }
-            } else if (msgFracionaria[i].equalsIgnoreCase("(")) {
-                if (msgFracionaria.length - i >= 3) {
-                    retorno = verificaQuantidadeUsuario(i,msgFracionaria);
-                    String[] retornoFrac = retorno.split(" ");
-                    divertido += Integer.parseInt(retornoFrac[0]);
-                    chateado += Integer.parseInt(retornoFrac[1]);
-                    neutro += Integer.parseInt(retornoFrac[2]);
-                    i=i+3;
-                }
-            }
+//            }
         } return String.valueOf(divertido)+" "+String.valueOf(chateado)+" "+String.valueOf(neutro);
     }
 
@@ -117,7 +140,6 @@ public class SentimentoFuncDAO implements ISentimentoFuncDAO {
             }
             return listaQtn;
         } catch (SQLException e) {
-            System.out.println("Erro ao buscar Produtos");
         }
         return listaQtn;
     }
@@ -126,26 +148,40 @@ public class SentimentoFuncDAO implements ISentimentoFuncDAO {
         int ind = i;
         int chateado = 0, divertido = 0, neutro = 0;
         String emoticons = msgFracionaria[ind] + msgFracionaria[++ind] + msgFracionaria[++ind];
-        if (emoticons.equals(":-)") || emoticons.equals("(-:")) {
-            divertido++;
-        } else if (emoticons.equals(":-(") || emoticons.equals(")-:")) {
-            chateado++;
-        } else {
-            System.out.println("Se você quis escrever alguns desses emoticons :-) :-( -- Digite 1- :-) e 2-:-(");
-            int resp = new Scanner(System.in).nextInt();
-            String sair = "";
-            do {
-                if (resp == 1) {
-                    divertido++;
-                } else if (resp == 2) {
-                    chateado++;
-                } else {
-                    System.out.println("digite uma das opções acima");
-                    sair = "repita";
+        int qtn = verificarQualEmoticons(emoticons);
+        if(qtn == 3) {
+            if (emoticons.equals(":-)") || emoticons.equals("(-:")) {
+                divertido++;
+            } else if (emoticons.equals(":-(") || emoticons.equals(")-:")) {
+                chateado++;
+            }
+        }else if (qtn == 2){
+                System.out.println("----------------------------------------");
+                System.out.println("Se você quis escrever alguns desses emoticons :-) ou :-( \nDigite: \n  1 -  :-)\n  2 -  :-(\n  3 -  Não  ");
+                System.out.println("----------------------------------------");
+                try {
+                    int resp = new Scanner(System.in).nextInt();
+                    if (resp == 1) {
+                        divertido++;
+                    } else if (resp == 2) {
+                        chateado++;
+                    }
+                } catch (InputMismatchException ime) {
+                    System.out.println("=======================================");
+                    System.out.println("Digite uma opção válida");
+                    System.out.println("=======================================");
                 }
-            } while (sair.equalsIgnoreCase("repita"));
-
         }
-        return String.valueOf(divertido)+" "+String.valueOf(chateado)+" "+String.valueOf(neutro);
+        return String.valueOf(divertido)+" "+String.valueOf(chateado)+" "+String.valueOf(neutro)+" "+String.valueOf(qtn);
+    }
+    public int verificarQualEmoticons(String emoticons){
+        String [] divEmot = emoticons.split(" ");
+        String divEmotic = "";
+        for (int j = 0; j < divEmot.length; j++) {
+            divEmotic= divEmotic + divEmot[j];
+        }
+        String[] emoticonsDiv = divEmotic.split("");
+        int qtn = emoticonsDiv.length;
+        return qtn;
     }
 }

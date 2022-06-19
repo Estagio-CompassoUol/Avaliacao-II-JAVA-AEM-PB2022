@@ -11,7 +11,7 @@ public interface IProduto {
 
     void atualizarOferta(int id);
 
-    void excluirOferta(int id);
+   boolean excluirOferta(int id);
 
     List<Produto> listarOfertas(String nome);
 

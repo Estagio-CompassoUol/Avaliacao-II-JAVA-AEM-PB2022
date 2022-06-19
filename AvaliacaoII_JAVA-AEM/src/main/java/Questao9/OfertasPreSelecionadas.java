@@ -16,9 +16,9 @@ public class OfertasPreSelecionadas {
 
             String dataAtual = new ProdutoDAO().dataAtual();
 
-            listaProd.add(new Produto(1,"TV", "TV Samsung 42Pol HD", 10, 1899.99f, dataAtual));
-            listaProd.add(new Produto(2,"Fogão", "Fogão 5 Bocas Consul", 5, 899.99f, dataAtual));
-            listaProd.add(new Produto(3,"Geladeira", "Geladeira 354L Eletrolux Branca", 15, 1999.99f, dataAtual));
+            listaProd.add(new Produto(1,"TV", "TV Samsung 42Pol HD", 10, 1899.99d, dataAtual));
+            listaProd.add(new Produto(2,"Fogão", "Fogão 5 Bocas Consul", 5, 899.99d, dataAtual));
+            listaProd.add(new Produto(3,"Geladeira", "Geladeira 354L Eletrolux Branca", 15, 1999.99d, dataAtual));
 
             return listaProd;
 
@@ -33,9 +33,9 @@ public class OfertasPreSelecionadas {
             int i =0;
             double[] valorDesconto = new double[3];
 
-            valorDesconto[0]  = (10*1899.99)/100;
-            valorDesconto[1] = (899.99*5)/100;
-            valorDesconto[2] = (15*1999.99)/100;
+            valorDesconto[0]  = 1899.9/10;
+            valorDesconto[1] = (899*5)/100;
+            valorDesconto[2] = (15*1999)/100;
 
             for (Produto produtoOfInic : valoresIniciais()) {
 
